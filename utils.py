@@ -1,11 +1,7 @@
-
-import os
-import pandas as pd
-import numpy as np
-from pandas import DataFrame
-
 # ================================================================================================ #
 # read or save csv as UTF8 encoding and index=False
+from pandas import DataFrame
+
 def read_csv(filepath : str) : 
     """Read csv file as UTF8 encoding.
 
@@ -15,6 +11,7 @@ def read_csv(filepath : str) :
     Returns:
         pd.read_csv(filepath, sep=",", encoding="UTF8")
     """
+    import pandas as pd
     return pd.read_csv(filepath, sep=",", encoding="UTF8")
 def save_csv(Data : DataFrame, filepath : str) : 
     """Save csv file as UTF8 encoding.
@@ -33,7 +30,9 @@ def save_csv(Data : DataFrame, filepath : str) :
 def return_data_dir(Game_name : str) -> str: 
     """Returns [Game_name]'s data directory.
     
-    - Data - Game_package_data - Game_name
+    - Data 
+        - Game_package_data 
+            - Game_name
 
     Args:
         Game_name (str) : name of game
@@ -42,6 +41,7 @@ def return_data_dir(Game_name : str) -> str:
         pd.read_csv("Data/Game_list.txt", sep=",", encoding="UTF8")[Game_name].values[0] 
             --> Data - Game_package_data - Game_name
     """
+    import pandas as pd
     return pd.read_csv("Data/Game_list.txt", sep=",", encoding="UTF8")[Game_name].values[0]
 
 # ================================================================================================ #
@@ -51,7 +51,7 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
     
     If some game's package data directory is already exist, function do nothing.
 
-    Creates : 
+    Directory that function creates : 
     - Current directory
         - Data
             - Game_package_data
@@ -61,6 +61,8 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
         Data_dir (str) : [ /Data ]
         Game_name (str) : name of game
     """
+    import os
+    import pandas as pd
     
     dir_package_data = Data_dir + "/Game_package_data"
     
@@ -89,7 +91,7 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
 def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -> None: 
     """Save pacakge's calculation
     
-    Directory : 
+    Directory that data stored : 
     - Data
         - Game_package_data
             - Game_name
@@ -100,6 +102,7 @@ def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -
         Game_name (str) : name of game
         Force (bool) : force to save data though already exist
     """
+    import os
     
     game_dir = return_data_dir(Game_name)
     
@@ -128,6 +131,7 @@ def save_package_data(Package_dataframe : DataFrame, Game_name : str, Force=Fals
         Game_name (str) : name of game.
         Force (bool, optional) : force to save data though already exist. Defaults to False.
     """
+    import os
     
     game_dir = return_data_dir(Game_name=Game_name)
     
@@ -152,9 +156,12 @@ def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> Non
     """Add package data.
 
     Args:
-        Package_dataframe (DataFrame): package data.
-        Game_name (str): name of game.
+        Package_dataframe (DataFrame) : package data.
+        Game_name (str) : name of game.
     """
+    import os
+    import numpy as np
+    import pandas as pd
     
     game_dir = return_data_dir(Game_name=Game_name)
     
@@ -175,9 +182,9 @@ def delete_package(Game_name : str, Package_name : str, Force=False) :
     """Delete specific package.
 
     Args:
-        Game_name (str): name of game.
-        Package_name (str): name of package.
-        Force (bool, optional): force to delete every data. Defaults to False.
+        Game_name (str) : name of game.
+        Package_name (str) : name of package.
+        Force (bool, optional) : force to delete every data. Defaults to False.
     """
     game_dir = return_data_dir(Game_name=Game_name)
     
@@ -202,27 +209,64 @@ def delete_package(Game_name : str, Package_name : str, Force=False) :
     print(f"[{Game_name}] package data [{Package_name}] has been deleted.")
 
 # ================================================================================================ #
-# need to add docstring
-
 # add input DataFrame in [ /Data/Game_list.txt ]
+from pandas import DataFrame
+
 def add_game_list(Data : DataFrame) -> None: 
+    """Add input DataFrame with [ /Data/Game_list.txt ]
+
+    If there's same data in [ /Game_list.txt ] and Data, function will overwrite [ /Game_list.txt ] as Data
+    
+    Args:
+        Data (DataFrame) : _description_
+    """
+    import pandas as pd
     
     if type(Data) != type(pd.DataFrame()) : 
         print(f"Args Data must be dataframe. --> [ Data : {type(Data)} ]")
         return
     
     prev = read_csv("Data/Game_list.txt")
+    
+    for game in Data.keys() : 
+        if game in prev.keys() : 
+            prev = prev.drop([game], axis=1)
+    
     current = pd.concat([prev, Data], axis=1)
     save_csv(current, "Data/Game_list.txt")
 
 # ================================================================================================ #
-# need to add docstring
-
 # creates every essential game directories
 # if there is something in Game_name_list, creates directory including it.
 # if Game_name_list is None, creates directories by [ /Data/Game_list.txt ]
 # if Force=True, deletes every directories and make new one
 def create_data_dir(Force=False, Game_name_list=False) -> None: 
+    """Creates every essential directories like : [ /Data, /Data/Game_list.txt, /Data/Game_package_data, ... ]
+
+    1\. If Force=True, function deletes stored data and create new one. If not, function only creates directories that missing.
+    - [ /Data ]
+    - [ /Data/Game_list.txt ] 
+    - [ /Data/Game_package_data ]
+    
+    2\. If Game_name_list=False, function doesn't create sub directories like : 
+    - [ /Game_package_data/Calculation_Game_name.txt ]
+    - [ /Game_package_data/Package_data.txt ]
+    
+    3\. If Game_name_list iterable, function will add Game_name_list to [ /Data/Game_list.txt ] and create sub directories :
+    - add new game list to [ /Game_list.txt ]
+    - [ /Game_package_data/Calculation_Game_name.txt ]
+    - [ /Game_package_data/Package_data.txt ]
+    
+    4\. If Game_name_list=None, function only creates sub directories that already exist in [ /Data/Game_list.txt ] : 
+    - [ /Game_package_data/Calculation_Game_name.txt ]
+    - [ /Game_package_data/Package_data.txt ]
+    
+    Args:
+        Force (bool, optional) : force to delete stored data and creates new one. Defaults to False.
+        Game_name_list (bool, optional) : list of games to create directories. Defaults to False.
+    """
+    import os
+    import pandas as pd
     
     game_list = True
 
@@ -281,13 +325,15 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
         else : 
             print("[/Data/Game_package_data] directory already exist.")
 
-        if not Game_name_list : 
+        if not Game_name_list and Game_name_list is not None: 
             return
     
-    game_dir_list = ["Data/Game_package_data/" + name for name in Game_name_list]
-    add_game_list(
-        pd.DataFrame(data=[game_dir_list], columns=Game_name_list)
-    )
+    if Game_name_list is not None : 
+        game_dir_list = ["Data/Game_package_data/" + name for name in Game_name_list]
+        add_game_list(
+            pd.DataFrame(data=[game_dir_list], columns=Game_name_list)
+        )
+    
     dir_game_package_data = "Data/Game_package_data"
 
     game_list = read_csv("Data/Game_list.txt").drop(["Null"], axis=1)
