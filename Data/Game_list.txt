@@ -1,2 +1,2 @@
-Null,Genshin_impact,Punishing_gray_raven,temp_game
-0,Data\Game_package_data\Genshin_impact,Data\Game_package_data\Punishing_gray_raven,D:\Documents\Desktop\준상\Efficiency_calculator\Data\Game_package_data\temp_game
+Null,Genshin_impact,Punishing_gray_raven,temp game 1,temp game 2,temp game 1.1,temp game 2.1
+0,Data/Game_package_data/Genshin_impact,Data/Game_package_data/Punishing_gray_raven,Data/Game_package_data/temp game 1,Data/Game_package_data/temp game 2,Data/Game_package_data/temp game 1.1,Data/Game_package_data/temp game 2.1

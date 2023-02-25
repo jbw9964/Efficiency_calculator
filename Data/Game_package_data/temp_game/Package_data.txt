@@ -1,3 +1,0 @@
-name,value,price
-first package,100,4500
-second pacakge,340,8500
