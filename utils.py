@@ -17,8 +17,8 @@ def save_csv(Data : DataFrame, filepath : str) :
     """Save csv file as UTF8 encoding.
 
     Args:
-        Data (DataFrame) : data build by DataFrame
-        filepath (str) : directory of csv file
+        Data (DataFrame) : data build by DataFrame.
+        filepath (str) : directory of csv file.
 
     Returns:
         Data.to_csv(filepath, sep=",", encoding="UTF8", index=False)
@@ -35,7 +35,7 @@ def return_data_dir(Game_name : str) -> str:
             - Game_name
 
     Args:
-        Game_name (str) : name of game
+        Game_name (str) : name of game.
 
     Returns:
         pd.read_csv("Data/Game_list.txt", sep=",", encoding="UTF8")[Game_name].values[0] 
@@ -59,7 +59,7 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
     
     Args:
         Data_dir (str) : [ /Data ]
-        Game_name (str) : name of game
+        Game_name (str) : name of game.
     """
     import os
     import pandas as pd
@@ -69,7 +69,7 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
     game_list = read_csv(Data_dir + "/Game_list.txt")
     
     if Game_name in os.listdir(dir_package_data) : 
-        print(f"{Game_name}'s data looks like already exist at {dir_package_data}")
+        print(f"[{Game_name}]'s data looks like already exist at {dir_package_data}")
         print(os.listdir(dir_package_data))
         return
     
@@ -88,7 +88,7 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
 
 # ================================================================================================ #
 # save input DataFrame to [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
-def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -> None: 
+def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -> bool: 
     """Save pacakge's calculation
     
     Directory that data stored : 
@@ -98,9 +98,12 @@ def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -
                 - Calculation_Game_name.txt
 
     Args:
-        Calc_dataframe (DataFrame) : calculated DataFrame
-        Game_name (str) : name of game
-        Force (bool) : force to save data though already exist
+        Calc_dataframe (DataFrame) : calculated DataFrame.
+        Game_name (str) : name of game.
+        Force (bool) : force to save data though already exist.
+    
+    Returns:
+        bool : True if calculation was saved.
     """
     import os
     
@@ -108,26 +111,31 @@ def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -
     
     if type(Calc_dataframe) != type(DataFrame()) : 
         print(f"Args Calc_dataframe must be dataframe. --> [ Calc_dataframe : {type(Calc_dataframe)} ]")
-        return
+        return False
     
     game_dir = game_dir + "/Calculation_" + Game_name + ".txt"
     
     if os.path.isfile(game_dir) : 
-        print(f"{Game_name}'s data looks like already exist at {game_dir}")
+        print(f"[{Game_name}]'s data looks like already exist at {game_dir}")
         if not Force :
-            return
+            return False
         print("Forcing to save data...")
     
     save_csv(Data=Calc_dataframe, filepath=game_dir)
     print(f"[{Game_name}] calculation data has been saved.")
+    return True
 
 # ================================================================================================ #
-# save input DataFrame to [ /Data/Game_package_data/Game_name/Package_data.txt ]
+# save input DataFrame to [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
 def save_package_data(Package_dataframe : DataFrame, Game_name : str, Force=False) -> None: 
     """Save package data.
 
+    Package data must be sotred with two columns : --> ["Package_name", "Value", "Price"]
+    
+    Therefore your input DataFrame should be shape=(N,3).
+    
     Args:
-        Package_dataframe (DataFrame) : package data.
+        Package_dataframe (DataFrame) : package data with shape=(N,3).
         Game_name (str) : name of game.
         Force (bool, optional) : force to save data though already exist. Defaults to False.
     """
@@ -139,10 +147,10 @@ def save_package_data(Package_dataframe : DataFrame, Game_name : str, Force=Fals
         print(f"Args Package_dataframe must be dataframe. --> [ Package_dataframe : {type(Package_dataframe)} ]")
         return
     
-    game_dir = game_dir + "/Package_data.txt"
+    game_dir = game_dir + "/Package_data_" + Game_name + ".txt"
     
     if os.path.isfile(game_dir) : 
-        print(f"{Game_name}'s data looks like already exist at {game_dir}")
+        print(f"[{Game_name}]'s data looks like already exist at [ /{game_dir} ]")
         if not Force :
             return
         print("Forcing to save data...")
@@ -151,12 +159,16 @@ def save_package_data(Package_dataframe : DataFrame, Game_name : str, Force=Fals
     print(f"[{Game_name}] package data has been saved.")
 
 # ================================================================================================ #
-# add input DataFrame with [ /Data/Game_package_data/Game_name/Package_data.txt ]
+# add input DataFrame with [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
 def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> None: 
     """Add package data.
 
+    Package data are stored with two columns : --> ["Package_name", "Value", "Price"]
+    
+    Therefore your input DataFrame should be shpae=(N,3).
+    
     Args:
-        Package_dataframe (DataFrame) : package data.
+        Package_dataframe (DataFrame) : package data with sahpe=(N,3).
         Game_name (str) : name of game.
     """
     import os
@@ -165,7 +177,7 @@ def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> Non
     
     game_dir = return_data_dir(Game_name=Game_name)
     
-    package_dir = game_dir + "/Package_data.txt"
+    package_dir = game_dir + "/Package_data_" + Game_name + ".txt"
     
     prev_data = read_csv(package_dir).values
     new_data = Package_dataframe.values
@@ -177,7 +189,7 @@ def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> Non
     print(f"[{Game_name}] package data has been created.")
 
 # ================================================================================================ #
-# delete input package data in [ /Data/Game_package_data/Game_name/Package_data.txt ]
+# delete input package data in [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
 def delete_package(Game_name : str, Package_name : str, Force=False) : 
     """Delete specific package.
 
@@ -188,7 +200,7 @@ def delete_package(Game_name : str, Package_name : str, Force=False) :
     """
     game_dir = return_data_dir(Game_name=Game_name)
     
-    package_dir = game_dir + "/Package_data.txt"
+    package_dir = game_dir + "/Package_data_" + Game_name + ".txt"
     
     package_data = read_csv(package_dir)
     
@@ -216,6 +228,10 @@ def add_game_list(Data : DataFrame) -> None:
     """Add input DataFrame with [ /Data/Game_list.txt ]
 
     If there's same data in [ /Game_list.txt ] and Data, function will overwrite [ /Game_list.txt ] as Data
+    
+    [ /Game_list.txt ] must be stored by columns=[list of games] --> shape=(1,N)
+    
+    Therefore, input DataFrame must be shape=(1,N)
     
     Args:
         Data (DataFrame) : _description_
@@ -250,16 +266,16 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
     
     2\. If Game_name_list=False, function doesn't create sub directories like : 
     - [ /Game_package_data/Calculation_Game_name.txt ]
-    - [ /Game_package_data/Package_data.txt ]
+    - [ /Game_package_data/Package_data_Game_name.txt ]
     
     3\. If Game_name_list iterable, function will add Game_name_list to [ /Data/Game_list.txt ] and create sub directories :
     - add new game list to [ /Game_list.txt ]
     - [ /Game_package_data/Calculation_Game_name.txt ]
-    - [ /Game_package_data/Package_data.txt ]
+    - [ /Game_package_data/Package_data_Game_name.txt ]
     
     4\. If Game_name_list=None, function only creates sub directories that already exist in [ /Data/Game_list.txt ] : 
     - [ /Game_package_data/Calculation_Game_name.txt ]
-    - [ /Game_package_data/Package_data.txt ]
+    - [ /Game_package_data/Package_data_Game_name.txt ]
     
     Args:
         Force (bool, optional) : force to delete stored data and creates new one. Defaults to False.
@@ -348,10 +364,79 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
             print()
 
 # ================================================================================================ #
-
+# Deletes [ /Data/Game_list.txt ] and creates new one
+def delete_game_data_dir() -> None: 
+    """Deletes [ /Data/Game_list.txt ] and creates new one.
+    """
+    import os
+    import pandas as pd
+    
+    game_list_dir = "Data/Game_list.txt"
+    
+    if not os.path.isfile(game_list_dir) : 
+        print("Game_list.txt doesn't exist.")
+    
+    else : 
+        os.remove(game_list_dir)
+        save_csv(pd.DataFrame(data=[0], columns=["Null"]), game_list_dir)
+        print("Game_list.txt has been deleted and created.")
 
 # ================================================================================================ #
+# load the package data at [ /Game_pacakge_data/Game_name/Package_data_Game_name.txt ]
+# and calculate package efficiency (value per price),
+# saved to [ /Game_pacakge_data/Game_name/Calculation_Game_name.txt ]
+def calc_package_eff(Game_name : str, Game_data_dir : str, Force=True) -> None: 
+    """Calculate efficiency by [ /Game_name/Package_data_Game_name.txt ] and save to [ /Game_name/Calculation_Game_name.txt ]
+    
+    Load data from : 
+    - [ /Game_package_data ]
+        - [ /Game_name ]
+            - [ /Package_data_Game_name.txt ]
+    
+    Save data to : 
+    - [ /Game_package_data ]
+        - [ /Game_name ]
+            - [ /Calculation_Game_name.txt ]
 
+    Args:
+        Game_name (str) : name of game.
+        Game_data_dir (str) : [ /Data/Game_package_data/Game_name ]
+        Force (bool, optional) : force to save data [ /Calculation_Game_name.txt ] though already exist. Defaults to True.
+    """
+    import os
+    import pandas as pd
+    
+    data_list = os.listdir(Game_data_dir)
+    
+    if len(data_list) < 2 : 
+        print("In [ /Data/Game_package_data/Game_name ], [ /Package_data_.txt ] must be exist.")
+        print(f"It seems like something's missing --> [ /{Game_data_dir} : {data_list} ]")
+        return
+        
+    if "Package" not in data_list[0] and "Package" not in data_list[1] : 
+        print("In [ /Data/Game_package_data/Game_name ], [ /Package_data_.txt ] must be exist.")
+        print(f"It seems like it's missing --> [ /{Game_data_dir} : {data_list} ]")
+        return
+    
+    print("Calculating...")
+    package_data = read_csv(Game_data_dir + "/Package_data_" + Game_name + ".txt")
+    
+    package_name_list = [name for name in package_data["Package_name"]]
+    package_value_list = [value for value in package_data["Value"]]
+    package_price_list = [price for price in package_data["Price"]]
+    
+    eff_list = []
+    for index in range(len(package_data)) : 
+        eff = package_value_list[index] / package_price_list[index]
+        eff_list.append(eff)
+    
+    calc_dataframe = pd.DataFrame(
+        data=[package_name_list, eff_list],
+        index=["Package_name", "value_per_price"]
+        ).transpose()
+    
+    if save_calculation(calc_dataframe, Game_name=Game_name, Force=Force) : 
+        print(f"[{Game_name}]'s data was calculated and saved at [ /{Game_data_dir}/Calculation_{Game_name}.txt ]")
 
 # ================================================================================================ #
 
