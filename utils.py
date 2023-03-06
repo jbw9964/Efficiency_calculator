@@ -199,7 +199,7 @@ def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -
     return True
 
 # deletes [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
-def delete_calculation(Game_name : str) : 
+def delete_calculation(Game_name : str) -> None: 
     """Deletes [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
     - the calculation data of Game_name
 
@@ -279,7 +279,7 @@ def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> Non
 
 # ================================================================================================ #
 # delete input package data in [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
-def delete_package(Game_name : str, Package_name : str, Force=False) : 
+def delete_package(Game_name : str, Package_name : str, Force=False) -> None: 
     """Delete specific package.
 
     Args:
@@ -479,6 +479,54 @@ def calc_package_eff(Game_name : str, Game_data_dir : str, Force=True) -> None:
         print(f"[{Game_name}]'s data was calculated and saved at [ /{Game_data_dir}/Calculation_{Game_name}.txt ]")
 
 # ================================================================================================ #
+# plots [ /Calculation_Game_name.txt ] using matplotlib.pyplot
+from pandas import DataFrame
+from numpy import ndarray
+
+def plot_eff(Game_name : str, values=False) -> list and DataFrame and ndarray: 
+    """Plots package efficency of [ Game_name ], using matplotlib.pyplot
+    - plots [ /Game_pacakge_data/Game_name/Calculation_Game_name.txt ]
+
+    This function returns 2 or 3 objects --> list, pd.DataFrame, np.ndarray
+
+    Args:
+        Game_name (str): name of game.
+        values (bool, optional): True to return ndarray of efficency values [use .values method]. Defaults to False.
+
+    Returns:
+        list : max efficency [package name, package index]
+        DataFrame : pd.DataFrame [ /Game_name/Calculation_Game_name.txt ]
+        ndarray : values of [ /Game_name/Calculation_Game_name.txt ]
+    """
+    import os
+    import matplotlib.pyplot as plt
+    
+    gamd_data_dir = return_data_dir(Game_name=Game_name)
+    calc_data_dir = gamd_data_dir + "/Calculation_" + Game_name + ".txt"
+    if not os.path.isfile(calc_data_dir) : 
+        print(f"[{Game_name}]'s calculation data doesn't exist. Use create_data_dir or save calculation etc...")
+        return
+    
+    calc_data = read_csv(calc_data_dir)
+    
+    max_eff = calc_data["value_per_price"].argmax()
+    
+    plt.bar(range(len(calc_data)), calc_data["value_per_price"], alpha=0.85, width=0.5)
+    plt.plot(calc_data["value_per_price"], 'o', color='g')
+    plt.plot(calc_data["value_per_price"], color='g')
+    plt.xticks(range(len(calc_data)), labels=calc_data['Package_name'])
+    plt.plot([max_eff], calc_data["value_per_price"][max_eff], 'o', color='r',
+             label="Max_eff : {} --> {}".format(calc_data["Package_name"][max_eff], calc_data["value_per_price"][max_eff]))
+    
+    plt.title("Value per price of [ {} ]".format(Game_name))
+    plt.legend(prop={'size':12}).set_alpha(1)
+    plt.tight_layout()
+    plt.show()
+
+    if values : 
+        return [calc_data["Package_name"][max_eff], max_eff], calc_data, calc_data.values
+    else : 
+        return calc_data["Package_name"][max_eff], calc_data
 
 
 # ================================================================================================ #
