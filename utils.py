@@ -87,6 +87,79 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
     print(f"[{Game_name}] data directory has been created.")
 
 # ================================================================================================ #
+# creates [ /Data/Game_list.txt ] with input Game_name_list
+def create_game_list(Game_name_list : list) -> None: 
+    """creates [ /Data/Game_list.txt ] with input Game_name_list
+
+    Args:
+        Game_name_list (list): list of game names
+    """
+    import os
+    import pandas as pd
+
+    gmae_list_dir = "Data/Game_list.txt"
+
+    if os.path.isfile(gmae_list_dir) : 
+        print("Game_list.txt already exist.")
+    
+    else : 
+        data_dir_list = [0]
+        game_name_list = ["Null"]
+        for name in Game_name_list : 
+            data_dir_list.append("Data/Game_package_data/" + name)
+            game_name_list.append(name)
+        
+        save_csv(Data=pd.DataFrame(data=[data_dir_list], columns=game_name_list), filepath=gmae_list_dir)
+        print(f"Game_list.txt has been created. --> [ /Data/Game_list.txt ] : {Game_name_list}")
+
+# add input DataFrame in [ /Data/Game_list.txt ]
+from pandas import DataFrame
+
+def add_game_list(Data : DataFrame) -> None: 
+    """Add input DataFrame with [ /Data/Game_list.txt ]
+
+    If there's same data in [ /Game_list.txt ] and Data, function will overwrite [ /Game_list.txt ] as Data
+    
+    [ /Game_list.txt ] must be stored by columns=[list of games] --> shape=(1,N)
+    
+    Therefore, input DataFrame must be shape=(1,N)
+    
+    Args:
+        Data (DataFrame) : _description_
+    """
+    import pandas as pd
+    
+    if type(Data) != type(pd.DataFrame()) : 
+        print(f"Args Data must be dataframe. --> [ Data : {type(Data)} ]")
+        return
+    
+    prev = read_csv("Data/Game_list.txt")
+    
+    for game in Data.keys() : 
+        if game in prev.keys() : 
+            prev = prev.drop([game], axis=1)
+    
+    current = pd.concat([prev, Data], axis=1)
+    save_csv(current, "Data/Game_list.txt")
+
+# Deletes [ /Data/Game_list.txt ] and creates new one
+def delete_game_list() -> None: 
+    """Deletes [ /Data/Game_list.txt ] and creates new one.
+    """
+    import os
+    import pandas as pd
+    
+    game_list_dir = "Data/Game_list.txt"
+    
+    if not os.path.isfile(game_list_dir) : 
+        print("Game_list.txt doesn't exist.")
+    
+    else : 
+        os.remove(game_list_dir)
+        save_csv(pd.DataFrame(data=[0], columns=["Null"]), game_list_dir)
+        print("Game_list.txt has been deleted and created.")
+
+# ================================================================================================ #
 # save input DataFrame to [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
 def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -> bool: 
     """Save pacakge's calculation
@@ -124,6 +197,22 @@ def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -
     save_csv(Data=Calc_dataframe, filepath=game_dir)
     print(f"[{Game_name}] calculation data has been saved.")
     return True
+
+# deletes [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
+def delete_calculation(Game_name : str) : 
+    """Deletes [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
+    - the calculation data of Game_name
+
+    Args:
+        Game_name (str): name of game.
+    """
+    import os
+
+    game_dir = return_data_dir(Game_name=Game_name)
+    calc_dir = game_dir + "/Calculation_" + Game_name + ".txt"
+    
+    os.remove(calc_dir)
+    print(f"[{Game_name}]'s calculation data has been deleted.")
 
 # ================================================================================================ #
 # save input DataFrame to [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
@@ -219,37 +308,6 @@ def delete_package(Game_name : str, Package_name : str, Force=False) :
     
     save_csv(package_data, package_dir)
     print(f"[{Game_name}] package data [{Package_name}] has been deleted.")
-
-# ================================================================================================ #
-# add input DataFrame in [ /Data/Game_list.txt ]
-from pandas import DataFrame
-
-def add_game_list(Data : DataFrame) -> None: 
-    """Add input DataFrame with [ /Data/Game_list.txt ]
-
-    If there's same data in [ /Game_list.txt ] and Data, function will overwrite [ /Game_list.txt ] as Data
-    
-    [ /Game_list.txt ] must be stored by columns=[list of games] --> shape=(1,N)
-    
-    Therefore, input DataFrame must be shape=(1,N)
-    
-    Args:
-        Data (DataFrame) : _description_
-    """
-    import pandas as pd
-    
-    if type(Data) != type(pd.DataFrame()) : 
-        print(f"Args Data must be dataframe. --> [ Data : {type(Data)} ]")
-        return
-    
-    prev = read_csv("Data/Game_list.txt")
-    
-    for game in Data.keys() : 
-        if game in prev.keys() : 
-            prev = prev.drop([game], axis=1)
-    
-    current = pd.concat([prev, Data], axis=1)
-    save_csv(current, "Data/Game_list.txt")
 
 # ================================================================================================ #
 # creates every essential game directories
@@ -362,24 +420,6 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
             save_calculation(pd.DataFrame(), Game_name=name)
             save_package_data(pd.DataFrame(), Game_name=name)
             print()
-
-# ================================================================================================ #
-# Deletes [ /Data/Game_list.txt ] and creates new one
-def delete_game_data_dir() -> None: 
-    """Deletes [ /Data/Game_list.txt ] and creates new one.
-    """
-    import os
-    import pandas as pd
-    
-    game_list_dir = "Data/Game_list.txt"
-    
-    if not os.path.isfile(game_list_dir) : 
-        print("Game_list.txt doesn't exist.")
-    
-    else : 
-        os.remove(game_list_dir)
-        save_csv(pd.DataFrame(data=[0], columns=["Null"]), game_list_dir)
-        print("Game_list.txt has been deleted and created.")
 
 # ================================================================================================ #
 # load the package data at [ /Game_pacakge_data/Game_name/Package_data_Game_name.txt ]
