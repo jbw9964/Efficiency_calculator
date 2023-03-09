@@ -45,7 +45,7 @@ def return_data_dir(Game_name : str) -> str:
     return pd.read_csv("Data/Game_list.txt", sep=",", encoding="UTF8")[Game_name].values[0]
 
 # ================================================================================================ #
-# creates [ /Data/Game_package_data/Game_name ] : creates only one directory
+# creates [ ./Data/Game_package_data/Game_name ] : creates only one directory
 def add_game_data_dir(Data_dir : str, Game_name : str) -> None: 
     """Only creates new game directory and saves to Game_list.txt
     
@@ -58,7 +58,7 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
                 - Game_name
     
     Args:
-        Data_dir (str) : [ /Data ]
+        Data_dir (str) : [ ./Data ]
         Game_name (str) : name of game.
     """
     import os
@@ -87,9 +87,9 @@ def add_game_data_dir(Data_dir : str, Game_name : str) -> None:
     print(f"[{Game_name}] data directory has been created.")
 
 # ================================================================================================ #
-# creates [ /Data/Game_list.txt ] with input Game_name_list
+# creates [ ./Data/Game_list.txt ] with input Game_name_list
 def create_game_list(Game_name_list : list) -> None: 
-    """creates [ /Data/Game_list.txt ] with input Game_name_list
+    """creates [ ./Data/Game_list.txt ] with input Game_name_list
 
     Args:
         Game_name_list (list): list of game names
@@ -110,13 +110,13 @@ def create_game_list(Game_name_list : list) -> None:
             game_name_list.append(name)
         
         save_csv(Data=pd.DataFrame(data=[data_dir_list], columns=game_name_list), filepath=gmae_list_dir)
-        print(f"Game_list.txt has been created. --> [ /Data/Game_list.txt ] : {Game_name_list}")
+        print(f"Game_list.txt has been created. --> [ ./Data/Game_list.txt ] : {Game_name_list}")
 
-# add input DataFrame in [ /Data/Game_list.txt ]
+# add input DataFrame in [ ./Data/Game_list.txt ]
 from pandas import DataFrame
 
 def add_game_list(Data : DataFrame) -> None: 
-    """Add input DataFrame with [ /Data/Game_list.txt ]
+    """Add input DataFrame with [ ./Data/Game_list.txt ]
 
     If there's same data in [ /Game_list.txt ] and Data, function will overwrite [ /Game_list.txt ] as Data
     
@@ -142,9 +142,9 @@ def add_game_list(Data : DataFrame) -> None:
     current = pd.concat([prev, Data], axis=1)
     save_csv(current, "Data/Game_list.txt")
 
-# Deletes [ /Data/Game_list.txt ] and creates new one
+# Deletes [ ./Data/Game_list.txt ] and creates new one
 def delete_game_list() -> None: 
-    """Deletes [ /Data/Game_list.txt ] and creates new one.
+    """Deletes [ ./Data/Game_list.txt ] and creates new one.
     """
     import os
     import pandas as pd
@@ -160,7 +160,7 @@ def delete_game_list() -> None:
         print("Game_list.txt has been deleted and created.")
 
 # ================================================================================================ #
-# save input DataFrame to [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
+# save input DataFrame to [ ./Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
 def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -> bool: 
     """Save pacakge's calculation
     
@@ -198,9 +198,9 @@ def save_calculation(Calc_dataframe : DataFrame, Game_name : str, Force=False) -
     print(f"[{Game_name}] calculation data has been saved.")
     return True
 
-# deletes [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
+# deltes [ ./Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
 def delete_calculation(Game_name : str) -> None: 
-    """Deletes [ /Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
+    """Deletes [ ./Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
     - the calculation data of Game_name
 
     Args:
@@ -215,7 +215,7 @@ def delete_calculation(Game_name : str) -> None:
     print(f"[{Game_name}]'s calculation data has been deleted.")
 
 # ================================================================================================ #
-# save input DataFrame to [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
+# save input DataFrame to [ ./Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
 def save_package_data(Package_dataframe : DataFrame, Game_name : str, Force=False) -> None: 
     """Save package data.
 
@@ -248,13 +248,13 @@ def save_package_data(Package_dataframe : DataFrame, Game_name : str, Force=Fals
     print(f"[{Game_name}] package data has been saved.")
 
 # ================================================================================================ #
-# add input DataFrame with [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
+# add input DataFrame with [ ./Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
 def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> None: 
     """Add package data.
 
     Package data are stored with two columns : --> ["Package_name", "Value", "Price"]
     
-    Therefore your input DataFrame should be shpae=(N,3).
+    Therefore your input DataFrame should be shpae=(N,3)
     
     Args:
         Package_dataframe (DataFrame) : package data with sahpe=(N,3).
@@ -278,7 +278,7 @@ def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> Non
     print(f"[{Game_name}] package data has been created.")
 
 # ================================================================================================ #
-# delete input package data in [ /Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
+# delete input package data in [ ./Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
 def delete_package(Game_name : str, Package_name : str, Force=False) -> None: 
     """Delete specific package.
 
@@ -312,26 +312,26 @@ def delete_package(Game_name : str, Package_name : str, Force=False) -> None:
 # ================================================================================================ #
 # creates every essential game directories
 # if there is something in Game_name_list, creates directory including it.
-# if Game_name_list is None, creates directories by [ /Data/Game_list.txt ]
+# if Game_name_list is None, creates directories by [ ./Data/Game_list.txt ]
 # if Force=True, deletes every directories and make new one
 def create_data_dir(Force=False, Game_name_list=False) -> None: 
-    """Creates every essential directories like : [ /Data, /Data/Game_list.txt, /Data/Game_package_data, ... ]
+    """Creates every essential directories like : [ ./Data, ./Data/Game_list.txt, ./Data/Game_package_data, ... ]
 
     1\. If Force=True, function deletes stored data and create new one. If not, function only creates directories that missing.
-    - [ /Data ]
-    - [ /Data/Game_list.txt ] 
-    - [ /Data/Game_package_data ]
+    - [ ./Data ]
+    - [ ./Data/Game_list.txt ] 
+    - [ ./Data/Game_package_data ]
     
     2\. If Game_name_list=False, function doesn't create sub directories like : 
     - [ /Game_package_data/Calculation_Game_name.txt ]
     - [ /Game_package_data/Package_data_Game_name.txt ]
     
-    3\. If Game_name_list iterable, function will add Game_name_list to [ /Data/Game_list.txt ] and create sub directories :
+    3\. If Game_name_list iterable, function will add Game_name_list to [ ./Data/Game_list.txt ] and create sub directories :
     - add new game list to [ /Game_list.txt ]
     - [ /Game_package_data/Calculation_Game_name.txt ]
     - [ /Game_package_data/Package_data_Game_name.txt ]
     
-    4\. If Game_name_list=None, function only creates sub directories that already exist in [ /Data/Game_list.txt ] : 
+    4\. If Game_name_list=None, function only creates sub directories that already exist in [ ./Data/Game_list.txt ] : 
     - [ /Game_package_data/Calculation_Game_name.txt ]
     - [ /Game_package_data/Package_data_Game_name.txt ]
     
@@ -352,11 +352,11 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
         
         import shutil
         print("Forcing to make new directories...")
-        print("--> [ /Data, /Data/Game_list.txt, /Data/Game_package_data ]")
+        print("--> [ ./Data, ./Data/Game_list.txt, ./Data/Game_package_data ]")
         
         shutil.rmtree("Data")
         os.makedirs("Data", exist_ok=True)
-        print("[/Data] directory has been made.")
+        print("[./Data] directory has been made.")
 
         game_dir_list = ["Data/Game_package_data/" + name for name in Game_name_list]
         save_csv(Data=pd.concat([
@@ -366,10 +366,10 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
             ),
             filepath="Data/Game_list.txt"
         )
-        print("[/Data/Game_list.txt] directory has been made.")
+        print("[./Data/Game_list.txt] directory has been made.")
 
         os.makedirs("Data/Game_package_data", exist_ok=True)
-        print("[/Data/Game_package_data] directory has been made.")
+        print("[./Data/Game_package_data] directory has been made.")
 
         print()
         for name in Game_name_list : 
@@ -381,23 +381,23 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
     
     else : 
         if not os.path.isdir("Data") : 
-            print("Directory [ /Data ] doesn't exist. Create new one.")
+            print("Directory [ ./Data ] doesn't exist. Create new one.")
             os.mkdir("Data")
         else : 
-            print("[/Data] directory already exist.")
+            print("[./Data] directory already exist.")
         
         if not os.path.isfile("Data/Game_list.txt") : 
-            print("Directory [ /Data/Game_list.txt ] doesn't exist. Create new one.")
+            print("Directory [ ./Data/Game_list.txt ] doesn't exist. Create new one.")
             save_csv(pd.DataFrame(data=[0], columns=["Null"]), "Data/Game_list.txt")
             game_list = False
         else : 
-            print("[/Data/Game_list.txt] directory already exist.")
+            print("[./Data/Game_list.txt] directory already exist.")
         
         if not os.path.isdir("Data/Game_package_data") : 
-            print("Directory [ /Data/Game_package_data ] doesn't exist. Create new one.")
+            print("Directory [ ./Data/Game_package_data ] doesn't exist. Create new one.")
             os.mkdir("Data/Game_package_data")
         else : 
-            print("[/Data/Game_package_data] directory already exist.")
+            print("[./Data/Game_package_data] directory already exist.")
 
         if not Game_name_list and Game_name_list is not None: 
             return
@@ -440,7 +440,7 @@ def calc_package_eff(Game_name : str, Game_data_dir : str, Force=True) -> None:
 
     Args:
         Game_name (str) : name of game.
-        Game_data_dir (str) : [ /Data/Game_package_data/Game_name ]
+        Game_data_dir (str) : [ ./Data/Game_package_data/Game_name ]
         Force (bool, optional) : force to save data [ /Calculation_Game_name.txt ] though already exist. Defaults to True.
     """
     import os
@@ -449,12 +449,12 @@ def calc_package_eff(Game_name : str, Game_data_dir : str, Force=True) -> None:
     data_list = os.listdir(Game_data_dir)
     
     if len(data_list) < 2 : 
-        print("In [ /Data/Game_package_data/Game_name ], [ /Package_data_.txt ] must be exist.")
+        print("In [ ./Data/Game_package_data/Game_name ], [ /Package_data_.txt ] must be exist.")
         print(f"It seems like something's missing --> [ /{Game_data_dir} : {data_list} ]")
         return
         
     if "Package" not in data_list[0] and "Package" not in data_list[1] : 
-        print("In [ /Data/Game_package_data/Game_name ], [ /Package_data_.txt ] must be exist.")
+        print("In [ ./Data/Game_package_data/Game_name ], [ /Package_data_.txt ] must be exist.")
         print(f"It seems like it's missing --> [ /{Game_data_dir} : {data_list} ]")
         return
     
@@ -528,9 +528,67 @@ def plot_eff(Game_name : str, values=False) -> list and DataFrame and ndarray:
     else : 
         return calc_data["Package_name"][max_eff], calc_data
 
+# ================================================================================================ #
+# check the game list in [ ./Data/Game_list.txt ]
+def check_game_list() -> None: 
+    """Check the game list in [ ./Data/Game_list.txt ]
+    """
+    game_list = read_csv("Data/Game_list.txt")
+    game_list = game_list.drop(["Null"], axis=1)
+    print()
+    print(f"Currently, there are {len(game_list.keys())} game in directory --> ")
+    print("---------------------------------")
+    for index in range(0, len(game_list.keys())) : 
+        print(game_list.keys()[index])
+    print("---------------------------------")
+    print()
 
 # ================================================================================================ #
+# print the status of [ ./Data/Game_list.txt ] 
+def serach_game() -> int and list and list: 
+    """Print the status of [ ./Data/Game_list.txt ]
 
+    Returns:
+        int : number of games in [ ./Data/Game_list.txt ]
+        list_1 : list of game names in [ ./Data/Game_list.txt ]
+        list_2 : list of game directory in [ ./Data/Game_list.txt ]
+    """
+    import os
+
+    print("------------------------------------------------------------------")
+    print("Searching...")
+    
+    game_dataframe = read_csv("Data/Game_list.txt")
+    game_dataframe = game_dataframe.drop(["Null"], axis=1)
+
+    num_game = len(game_dataframe.keys())                   # number of games in Game_list.txt
+    game_name_list = list(game_dataframe.keys())            # name of gmaes in Game_list.txt
+    game_dir_list = game_dataframe.values.ravel().tolist()  # directories in Game_list.txt
+
+    print("------------------------------------------------------------------")
+    print(f"Number of games in [ ./Data/Game_list.txt ] --> {num_game}")
+    print("------------------------------------------------------------------")
+    print("List of game directories in [ ./Data/Game_list.txt ]")
+
+    for index, name in enumerate(game_name_list) : 
+        print(f"[{name}]")
+        print(f"\t--> [ ./{game_dataframe.values[0][index]} ]")
+        print()
+    print("------------------------------------------------------------------")
+    
+    pacakge_data_dir = "Data/Game_package_data"
+
+    print("Direcotires in [ ./Data/Game_package_data ]")
+    print("------------------------------------------------------------------")
+    for name in os.listdir(pacakge_data_dir) : 
+        print(f"[{name}]")
+        data_dir = pacakge_data_dir + "/" + name
+        for file in os.listdir(data_dir) : 
+            print(f"\t--> [{file}]")
+        print()
+    print("------------------------------------------------------------------")
+
+    return num_game, game_name_list, game_dir_list
 
 # ================================================================================================ #
 
