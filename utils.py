@@ -526,27 +526,35 @@ def plot_eff(Game_name : str, values=False) -> list and DataFrame and ndarray:
     if values : 
         return [calc_data["Package_name"][max_eff], max_eff], calc_data, calc_data.values
     else : 
-        return calc_data["Package_name"][max_eff], calc_data
+        return [calc_data["Package_name"][max_eff], max_eff], calc_data
 
 # ================================================================================================ #
 # check the game list in [ ./Data/Game_list.txt ]
-def check_game_list() -> None: 
-    """Check the game list in [ ./Data/Game_list.txt ]
+def check_game_list() -> list: 
+    """Check the game list in [ ./Data/Game_list.txt ] and return as a list.
+
+    Returns:
+        list : list of game names in [ ./Data/Game_list.txt ]
     """
     game_list = read_csv("Data/Game_list.txt")
     game_list = game_list.drop(["Null"], axis=1)
-    print()
-    print(f"Currently, there are {len(game_list.keys())} game in directory --> ")
-    print("---------------------------------")
+    print(f"Currently, there are {len(game_list.keys())} game in directory")
+    print("------------------------------------------------------------------")
+
+    game_name_list = []
     for index in range(0, len(game_list.keys())) : 
-        print(game_list.keys()[index])
-    print("---------------------------------")
+        game_name_list.append(game_list.keys()[index])
+        print(f"\t--> {game_list.keys()[index]}")
+    
+    print("------------------------------------------------------------------")
     print()
+
+    return game_name_list
+
 
 # ================================================================================================ #
 # print the status of [ ./Data/Game_list.txt ] 
 def serach_game() -> bool and list and list : 
-    
     """Print the status of [ ./Data/Game_list.txt ]
 
     Returns:
