@@ -545,19 +545,21 @@ def check_game_list() -> None:
 
 # ================================================================================================ #
 # print the status of [ ./Data/Game_list.txt ] 
-def serach_game() -> int and list and list: 
+def serach_game() -> bool and list and list : 
+    
     """Print the status of [ ./Data/Game_list.txt ]
 
     Returns:
-        int : number of games in [ ./Data/Game_list.txt ]
-        list_1 : list of game names in [ ./Data/Game_list.txt ]
-        list_2 : list of game directory in [ ./Data/Game_list.txt ]
+        bool : whether the directories or file is valid.
+        list_1 : list of unvalid game names, which doesn't exist in [ ./Data/Game_list.txt ].
+        list_2 : list of unvalid data directories, which exist in [ ./Data/Game_package_data/Game_name ].
     """
     import os
-
+    
     print("------------------------------------------------------------------")
     print("Searching...")
-    
+    valid = True
+
     game_dataframe = read_csv("Data/Game_list.txt")
     game_dataframe = game_dataframe.drop(["Null"], axis=1)
 
@@ -578,17 +580,71 @@ def serach_game() -> int and list and list:
     
     pacakge_data_dir = "Data/Game_package_data"
 
+    dir_unvalid_list = []
+    file_unvalid_list = []
+
     print("Direcotires in [ ./Data/Game_package_data ]")
     print("------------------------------------------------------------------")
     for name in os.listdir(pacakge_data_dir) : 
-        print(f"[{name}]")
+        print(f"[{name}]", end=" ")
+        
+        if name not in game_name_list : 
+            print("==> NOTE : [Dosen't exist in [ ./Data/Game_list.txt ]]", end="")
+            valid = False
+            dir_unvalid_list.append(name)
+        print()
+
         data_dir = pacakge_data_dir + "/" + name
-        for file in os.listdir(data_dir) : 
-            print(f"\t--> [{file}]")
+
+        if not len(os.listdir(data_dir)) : 
+            print("\t==> NOTE : [Data doesn't exist properly. Data is missing]")
+            valid = False
+            file_unvalid_list.append(data_dir)
+        
+        else : 
+            for file in os.listdir(data_dir) : 
+                
+                if ("Calculation" not in file and "Package_data" not in file) or len(os.listdir(data_dir)) != 2 : 
+                    print("\t==> NOTE : [Data doesn't exist properly]")
+                    valid = False
+                    file_unvalid_list.append(data_dir)
+                
+                print(f"\t--> [{file}]")
+        
         print()
     print("------------------------------------------------------------------")
+    
+    if not valid : 
+        
+        if dir_unvalid_list : 
+            print("There's mismatch between [ ./Data/Game_list.txt ] and data directories.")
+            print("In [ ./Data/Game_list.txt ], there's no game named as...")
+            for name in dir_unvalid_list : 
+                print(f"\t--> [{name}]")
+            print()
 
-    return num_game, game_name_list, game_dir_list
+        if file_unvalid_list : 
+            print("In data directory, data is somewhere missing.")
+            print("In [ ./Data/Game_package_data/[Game_name] ] directories, there should be file named as... \n[ Calculation_Game_name.txt, Package_data_Game_name.txt ]")
+            print()
+
+            for data_dir in file_unvalid_list : 
+                print(f"\t==> In [ ./{data_dir} ] ...")
+                
+                if not len(os.listdir(data_dir)) : 
+                    print("\t\t--> There's no data in directory.")
+                
+                else : 
+                    for data in os.listdir(data_dir) : 
+                        print(f"\t\t--> [ {data} ] exist.")
+                
+                print()
+        
+        print("------------------------------------------------------------------")
+
+        return valid, dir_unvalid_list, file_unvalid_list
+
+    return valid, None, None
 
 # ================================================================================================ #
 
