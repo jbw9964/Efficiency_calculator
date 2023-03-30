@@ -12,6 +12,19 @@ def main() :
     print("https://github.com/jbw9964/Efficiency_calculator.git")
     print("======================================================================================================")
 
+    if not ("Data" in os.listdir(os.getcwd())) : 
+        print("It seems like no data exist.")
+        print("Forcing to create data directories.")
+        print("Type the name of games seperated by ', ' : ", end="")
+        game_list = list(str(input()).split(", "))
+        for game in game_list : 
+            print(game, end=" ")
+        print()
+        print()
+        create_data_dir(Force=False, Game_name_list=game_list)
+        print()
+        print("======================================================================================================")
+    
     while True : 
         print()
         print("Options : [ 0 ~ 5 ]")
