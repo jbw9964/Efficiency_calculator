@@ -549,7 +549,12 @@ def check_game_list() -> list:
     Returns:
         list : list of game names in [ ./Data/Game_list.txt ]
     """
-    game_list = read_csv("Data/Game_list.txt")
+    try : 
+        game_list = read_csv("Data/Game_list.txt")
+    except : 
+        print("There is no game in directory.")
+        return
+    
     game_list = game_list.drop(["Null"], axis=1)
     print(f"Currently, there are {len(game_list.keys())} game in directory")
     print("------------------------------------------------------------------")
@@ -895,7 +900,6 @@ def delete_data(File_path : str, File_type : int) -> None:
         print("\t--> [5] : Check data status")
         print()
         return
-
 
 # ================================================================================================ #
 # check file type of [File_path]
