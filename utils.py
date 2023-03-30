@@ -551,10 +551,9 @@ def check_game_list() -> list:
 
     return game_name_list
 
-
 # ================================================================================================ #
 # print the status of [ ./Data/Game_list.txt ] 
-def serach_game() -> bool and list and list : 
+def serach_game() -> bool and list and list: 
     """Print the status of [ ./Data/Game_list.txt ]
 
     Returns:
@@ -655,7 +654,93 @@ def serach_game() -> bool and list and list :
     return valid, None, None
 
 # ================================================================================================ #
+# search data directories and print the .txt files if chosen
+def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None: 
+    """Search [ ./Data ] and its sub directories.
 
+    If you choose .txt file like [ Game_list.txt, Calculation_Game_name.txt etc... ], it will print the string inside of it.
+
+    If it's empty, prints nothing.
+
+    If Parent_dir=None and choose [0] : [/Exit],
+    function will return you to menu.
+    
+    Args:
+        Current_dir (str): directory that currently in use.
+        depth (int): depth of current directory relative to root.
+        Parent_dir (str, optional): parent directory of Current_dir. Defaults to None.
+    """
+    import os
+    
+    print("------------------------------------------------------------------")
+    print(f"==> Current directory : {Current_dir}")
+
+    is_file = [None]
+    sub_dir_list = [None]
+    sub_dir_name_list = [None]
+    index_count = 0
+
+    print("\t"*depth, f"--> [0] : [/Exit]")
+    for sub_dir in os.listdir(Current_dir) : 
+        index_count += 1
+        
+        if ".txt" in sub_dir : 
+            is_file.append(True)
+        else : 
+            is_file.append(None)
+        
+        sub_dir_name_list.append(sub_dir)
+        sub_dir_list.append(
+            os.path.join(Current_dir, sub_dir)
+        )
+        print("\t"*depth, f"--> [{index_count}] : {sub_dir}")
+
+    print()
+    print("Waiting user input : ", end="")
+    try : 
+        user_input = input()
+        user_input = int(user_input)
+        print(user_input)
+        print()
+    
+    except : 
+        print(f"Your input is incompatible to {type(int())}. --> [{user_input}]")
+        print("Please check your input.")
+        print()
+        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, depth=depth)
+
+
+    if not (user_input in list(range(0, index_count + 1))) : 
+        print(f"You put wrong input. Please check the number you choosed. --> [{user_input}]")
+        print()
+        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, depth=depth)
+    
+    elif user_input == 0 : 
+        print("------------------------------------------------------------------")
+        print("Going back to parent directory...")
+        if Parent_dir == None : 
+            print("Return to menu...")
+        return
+    
+    else : 
+        if is_file[user_input] is not None: 
+            import pandas as pd
+            try : 
+                leaf_file = read_csv(sub_dir_list[user_input])
+                print(leaf_file)
+                print()
+            except : 
+                print("Data file is empty.")
+                print("Use options like...")
+                print("\t--> [2] : Manage data")
+                print()
+
+        else : 
+            print("------------------------------------------------------------------")
+            print("Moving to sub directory...")
+            recursive_search(Current_dir=sub_dir_list[user_input], Parent_dir=Current_dir, depth=depth + 1)
+
+        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, depth=depth)
 
 # ================================================================================================ #
 
