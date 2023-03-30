@@ -1,1 +1,2 @@
-
+Package_name,value_per_price
+first package,100.0
