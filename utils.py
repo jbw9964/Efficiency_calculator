@@ -125,7 +125,7 @@ def add_game_list(Data : DataFrame) -> None:
     Therefore, input DataFrame must be shape=(1,N)
     
     Args:
-        Data (DataFrame) : _description_
+        Data (DataFrame) : input data
     """
     import pandas as pd
     
@@ -142,9 +142,11 @@ def add_game_list(Data : DataFrame) -> None:
     current = pd.concat([prev, Data], axis=1)
     save_csv(current, "Data/Game_list.txt")
 
-# Deletes [ ./Data/Game_list.txt ] and creates new one
-def delete_game_list() -> None: 
-    """Deletes [ ./Data/Game_list.txt ] and creates new one.
+# Deletes specific data, [Game_name] in [ ./Data/Game_list.txt ]
+def delete_game_list(Game_name : str, Force=False) -> None: 
+    """Deletes specific data, [Game_name] in [ ./Data/Game_list.txt ]
+
+    If Force=True, deletes all data and creates new one
     """
     import os
     import pandas as pd
@@ -155,9 +157,19 @@ def delete_game_list() -> None:
         print("Game_list.txt doesn't exist.")
     
     else : 
-        os.remove(game_list_dir)
-        save_csv(pd.DataFrame(data=[0], columns=["Null"]), game_list_dir)
-        print("Game_list.txt has been deleted and created.")
+        if Force : 
+            os.remove(game_list_dir)
+            save_csv(pd.DataFrame(data=[0], columns=["Null"]), game_list_dir)
+            print("Game_list.txt has been deleted and created.")
+        
+        else : 
+            data = read_csv(game_list_dir)
+            if not (Game_name in data.keys()) : 
+                print(f"[{Game_name}] doesn't exist in Game_list.txt")
+            else : 
+                data = data.drop([Game_name], axis=1)
+                save_csv(data, game_list_dir)
+                print(f"{[Game_name]} has been deleted in Game_list.txt.")
 
 # ================================================================================================ #
 # save input DataFrame to [ ./Data/Game_package_data/Game_name/Calculation_Game_name.txt ]
@@ -275,7 +287,7 @@ def add_package_dataframe(Package_dataframe : DataFrame, Game_name : str) -> Non
     current_data = pd.DataFrame(data=data_stack, columns=Package_dataframe.keys())
     
     save_csv(current_data, package_dir)
-    print(f"[{Game_name}] package data has been created.")
+    print(f"[{Game_name}] package data has been updated.")
 
 # ================================================================================================ #
 # delete input package data in [ ./Data/Game_package_data/Game_name/Package_data_Game_name.txt ]
@@ -293,7 +305,7 @@ def delete_package(Game_name : str, Package_name : str, Force=False) -> None:
     
     package_data = read_csv(package_dir)
     
-    del_index = package_data.index[package_data['name'] == Package_name]
+    del_index = package_data.index[package_data['Package_name'] == Package_name]
     
     if len(del_index) > 1 : 
         print(f"There are multiple packages that named [ {Package_name} ] in data.")
@@ -308,6 +320,7 @@ def delete_package(Game_name : str, Package_name : str, Force=False) -> None:
     
     save_csv(package_data, package_dir)
     print(f"[{Game_name}] package data [{Package_name}] has been deleted.")
+    print()
 
 # ================================================================================================ #
 # creates every essential game directories
@@ -399,7 +412,7 @@ def create_data_dir(Force=False, Game_name_list=False) -> None:
         else : 
             print("[./Data/Game_package_data] directory already exist.")
 
-        if not Game_name_list and Game_name_list is not None: 
+        if (not Game_name_list) and (Game_name_list is not None) : 
             return
     
     if Game_name_list is not None : 
@@ -563,7 +576,7 @@ def serach_game() -> bool and list and list:
     """
     import os
     
-    print("------------------------------------------------------------------")
+    print("==================================================================")
     print("Searching...")
     valid = True
 
@@ -654,8 +667,8 @@ def serach_game() -> bool and list and list:
     return valid, None, None
 
 # ================================================================================================ #
-# search data directories and print the .txt files if chosen
-def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None: 
+# search data directories via recursion and print if .txt file has chosen
+def recursive_search(Current_dir : str, Depth : int, Parent_dir=None) -> None: 
     """Search [ ./Data ] and its sub directories.
 
     If you choose .txt file like [ Game_list.txt, Calculation_Game_name.txt etc... ], it will print the string inside of it.
@@ -667,7 +680,7 @@ def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None:
     
     Args:
         Current_dir (str): directory that currently in use.
-        depth (int): depth of current directory relative to root.
+        Depth (int): Depth of current directory relative to root.
         Parent_dir (str, optional): parent directory of Current_dir. Defaults to None.
     """
     import os
@@ -680,7 +693,7 @@ def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None:
     sub_dir_name_list = [None]
     index_count = 0
 
-    print("\t"*depth, f"--> [0] : [/Exit]")
+    print("\t"*Depth, f"--> [0] : [/Exit]")
     for sub_dir in os.listdir(Current_dir) : 
         index_count += 1
         
@@ -693,7 +706,7 @@ def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None:
         sub_dir_list.append(
             os.path.join(Current_dir, sub_dir)
         )
-        print("\t"*depth, f"--> [{index_count}] : {sub_dir}")
+        print("\t"*Depth, f"--> [{index_count}] : {sub_dir}")
 
     print()
     print("Waiting user input : ", end="")
@@ -707,13 +720,13 @@ def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None:
         print(f"Your input is incompatible to {type(int())}. --> [{user_input}]")
         print("Please check your input.")
         print()
-        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, depth=depth)
+        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, Depth=Depth)
 
 
     if not (user_input in list(range(0, index_count + 1))) : 
         print(f"You put wrong input. Please check the number you choosed. --> [{user_input}]")
         print()
-        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, depth=depth)
+        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, Depth=Depth)
     
     elif user_input == 0 : 
         print("------------------------------------------------------------------")
@@ -738,11 +751,325 @@ def recursive_search(Current_dir : str, depth : int, Parent_dir=None) -> None:
         else : 
             print("------------------------------------------------------------------")
             print("Moving to sub directory...")
-            recursive_search(Current_dir=sub_dir_list[user_input], Parent_dir=Current_dir, depth=depth + 1)
+            recursive_search(Current_dir=sub_dir_list[user_input], Parent_dir=Current_dir, Depth=Depth + 1)
 
-        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, depth=depth)
+        return recursive_search(Current_dir=Current_dir, Parent_dir=Parent_dir, Depth=Depth)
 
 # ================================================================================================ #
+# add data to [File_path] file
+def add_data(File_path : str, File_type : int) -> None: 
+    """Add data to [File_path] file
 
+    Args:
+        File_path (str): directory of file
+        File_type (int): type of [File_path] file. More details at check_file_type(File_path : str) function.
+    """
+    import pandas as pd
+
+    is_empty = False
+    try : 
+        data = read_csv(File_path)
+    except : 
+        is_empty = True
+    
+    if File_type == 1 :             # Game_list.txt
+        print("Type name of the game : ", end="")
+        game_name = str(input())
+        print(game_name)
+        
+        if is_empty : 
+            create_game_list(Game_name_list=[game_name])
+        else : 
+            game_data_dir = "Data/Game_package_data/" + game_name
+            game_data = pd.DataFrame(data=[[game_data_dir]], columns=[game_name])
+            add_game_list(Data=game_data)
+        
+        print(f"[{game_name}] has been updated in [ ./Data/Game_list.txt ]", end="\n\n")
+        create_data_dir(Force=False, Game_name_list=None)
+    
+    elif File_type == 2 :           # Package_data_Game_name.txt
+        if is_empty : 
+            pass
+        game_name = File_path.split("/")[2]
+        
+        print("Type package name to add : ", end="")
+        package_name = str(input())
+        print(package_name)
+        
+        try : 
+            print(f"Type [{package_name}] price : ", end="")
+            package_price = input()
+            print(package_price)
+            print(f"Type [{package_name}] value : ", end="")
+            package_value = input()
+            print(package_value)
+
+            package_price = float(package_price)
+            package_value = float(package_value)
+
+        except : 
+            print(f"Your input is incompatible to {type(float())}.")
+            print(f"\t--> package_price : [{package_price}]")
+            print(f"\t--> package_price : [{package_value}]")
+            print("Please check your input.")
+            print()
+            return
+        
+        data_add = pd.DataFrame(data=[[package_name, package_price, package_value]], columns=["Package_name", "Price", "Value"])
+        print()
+        print("Saving package data...")
+        if is_empty : 
+            save_package_data(Package_dataframe=data_add, Game_name=game_name, Force=True)
+        else : 
+            add_package_dataframe(Package_dataframe=data_add, Game_name=game_name)
+        
+        gamd_data_dir = "Data/Game_package_data/" + game_name
+        calc_package_eff(Game_name=game_name, Game_data_dir=gamd_data_dir, Force=True)
+
+    else :                          # UNSUPPORTED
+        print(f"[ ./{File_path} ] is not supported to operate.")
+        print("Use options like...")
+        print("\t--> [1] : Initialize data")
+        print("\t--> [5] : Check data status")
+        print()
+        return
+
+# delete data at [File_path] file
+def delete_data(File_path : str, File_type : int) -> None: 
+    """Delete data at [File_path] file
+
+    Args:
+        File_path (str): File_path (str): directory of file
+        File_type (int): type of [File_path] file. More details at check_file_type(File_path : str) function.
+    """
+    import pandas as pd
+
+    if File_type == 1 :             # Game_list.txt
+        data = read_csv(File_path)
+        print("Type correct game name to delete data : ", end="")
+        game_name = str(input())
+        print(game_name, end="\n\n")
+
+        if not (game_name in data.keys()) : 
+            print(f"There is no game named : [{game_name}]")
+            print("Currently, there are games like...")
+            for game in data.keys() : 
+                print(f"\t--> [{game}]")
+            print()
+            print("Please type exact game name.", end="\n\n")
+            return
+        
+        game_dir = return_data_dir(Game_name=game_name)
+        delete_game_list(Game_name=game_name)
+
+        import shutil
+        shutil.rmtree(game_dir)
+
+        print(f"[ ./{game_dir} ] has been deleted.")
+    
+    elif File_type == 2 :           # Package_data_Game_name.txt
+        data = read_csv(File_path)
+        game_name = File_path.split("/")[2]
+        
+        print("Type correct package name to delete data : ", end="")
+        package_name = str(input())
+        print(package_name, end="\n\n")
+
+        if not (package_name in data["Package_name"].values) : 
+            print(f"There is no package data named : [{package_name}]")
+            print("Currently, there are packages named...")
+            for package in data["Package_name"].values : 
+                print(f"\t--> [{package}]")
+            print()
+            print("Please type exact package name.", end="\n\n")
+            return
+        
+        delete_package(Game_name=game_name, Package_name=package_name)
+        gamd_data_dir = "Data/Game_package_data/" + game_name
+        calc_package_eff(Game_name=game_name, Game_data_dir=gamd_data_dir, Force=True)
+
+    else :                          # UNSUPPORTED
+        print(f"[ ./{File_path} ] is not supported to operate.")
+        print("Use options like...")
+        print("\t--> [1] : Initialize data")
+        print("\t--> [5] : Check data status")
+        print()
+        return
+
+
+# ================================================================================================ #
+# check file type of [File_path]
+def check_file_type(File_path : str) : 
+    """Check the type of [File_path], Game_list.txt, Calculation_Game_name.txt, Package_data_Game_name.txt
+
+    Args:
+        File_path (str): directory of file
+
+    Returns:
+        - 1, 2, False
+        - Gmae_list.txt
+        - Package_data_Game_name.txt
+        - UNSUPPORTED
+    """
+    if "Game_list.txt" in File_path : 
+        return 1
+    elif "Package_data" in File_path : 
+        return 2
+    return False
+
+# ================================================================================================ #
+# excute specific operation to [File_path] file
+def manage_data(File_path : str) : 
+    """Excute specific operation to [File_path] file
+
+    Args:
+        File_path (str): directory of file
+
+    """
+    is_empty = False
+    try : 
+        data = read_csv(File_path)
+        print("Revealing data in file...")
+        print("------------------------------------------------------------------")
+    except : 
+        is_empty = True
+
+    if not is_empty : 
+        if "Null" in data.keys() : 
+            for game in data.drop(["Null"], axis=1).keys() : 
+                print(game, end=" ")
+                print(f"--> [ ./{data[game][0]} ]")
+        else : 
+            print(data)
+    else : 
+        print("Data file is empty.")
+
+    print("------------------------------------------------------------------")
+    print("Choose operation")
+    print("[0] : Cancle")
+    print("[1] : Add new data")
+    print("[2] : Delete some data", end="\n\n")
+
+    if is_empty : 
+        print("==> Since data file is empty, you can use only option [0] and [1]", end="\n\n")
+    
+    print("Operation input : ", end="")
+    oper_input = input()
+    print(oper_input)
+    print("------------------------------------------------------------------")
+
+    try : 
+        oper_input = int(oper_input)
+        if not (oper_input in [0, 1, 2]) : 
+            raise IndexError
+        if is_empty and (not (oper_input in [0, 1])) : 
+            raise IndexError
+    except IndexError : 
+        print(f"You put wrong input. Please check the number you choosed. --> [{oper_input}]")
+        print()
+        return 
+    except : 
+        print(f"Your input is incompatible to {type(int())}. --> [{oper_input}]")
+        print("Please check your input.")
+        print()
+        return 
+    
+    if oper_input == 0 : 
+        print("Canceling operation...")
+        return
+
+    print(f"Current file is [ ./{File_path} ]")
+    file_type = check_file_type(File_path=File_path)
+    if is_empty : 
+        add_data(File_path=File_path, File_type=file_type)
+    
+    else : 
+        if oper_input == 1 : 
+            add_data(File_path=File_path, File_type=file_type)
+
+        elif oper_input == 2 : 
+            delete_data(File_path=File_path, File_type=file_type)
+
+    return
+
+# ================================================================================================ #
+# search data directories via recursion and modify if .txt file has chosen
+def recursive_modify(Current_dir : str, Depth : int, Parent_dir=None) -> None: 
+    """Search [ ./Data ] and its sub directories.
+
+    If you choose .txt file like [ Game_list.txt, Calculation_Game_name.txt etc... ], it will excute manage_data(File_path : str) function to modify data.
+
+    If Parent_dir=None and choose [0] : [/Exit],
+    function will return you to menu.
+    
+    Args:
+        Current_dir (str): directory that currently in use.
+        Depth (int): Depth of current directory relative to root.
+        Parent_dir (str, optional): parent directory of Current_dir. Defaults to None.
+    """
+    import os
+    
+    print("------------------------------------------------------------------")
+    print(f"==> Current directory : {Current_dir}")
+
+    is_file = [None]
+    sub_dir_list = [None]
+    sub_dir_name_list = [None]
+    index_count = 0
+
+    print("\t"*Depth, f"--> [0] : [/Exit]")
+    for sub_dir in os.listdir(Current_dir) : 
+        index_count += 1
+        
+        if ".txt" in sub_dir : 
+            is_file.append(True)
+        else : 
+            is_file.append(None)
+        
+        sub_dir_name_list.append(sub_dir)
+        sub_dir_list.append(
+            os.path.join(Current_dir, sub_dir)
+        )
+        print("\t"*Depth, f"--> [{index_count}] : {sub_dir}")
+
+    print()
+    print("Waiting user input : ", end="")
+    try : 
+        user_input = input()
+        print(user_input)
+        user_input = int(user_input)
+        print()
+    
+    except : 
+        print(f"Your input is incompatible to {type(int())}. --> [{user_input}]")
+        print("Please check your input.")
+        print()
+        return recursive_modify(Current_dir=Current_dir, Parent_dir=Parent_dir, Depth=Depth)
+
+
+    if not (user_input in list(range(0, index_count + 1))) : 
+        print(f"You put wrong input. Please check the number you choosed. --> [{user_input}]")
+        print()
+        return recursive_modify(Current_dir=Current_dir, Parent_dir=Parent_dir, Depth=Depth)
+    
+    elif user_input == 0 : 
+        print("------------------------------------------------------------------")
+        print("Going back to parent directory...")
+        if Parent_dir == None : 
+            print("Return to menu...")
+        return
+    
+    else : 
+        if is_file[user_input] is not None: 
+            print("------------------------------------------------------------------")
+            print("Managing data...")
+            manage_data(File_path=sub_dir_list[user_input])
+
+        else : 
+            print("------------------------------------------------------------------")
+            print("Moving to sub directory...")
+            recursive_modify(Current_dir=sub_dir_list[user_input], Parent_dir=Current_dir, Depth=Depth + 1)
+
+        return recursive_modify(Current_dir=Current_dir, Parent_dir=Parent_dir, Depth=Depth)
 
 # ================================================================================================ #
